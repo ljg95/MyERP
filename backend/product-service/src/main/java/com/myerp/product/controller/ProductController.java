@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -24,8 +22,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDto>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<org.springframework.data.domain.Page<ProductDto>> getProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status,
+            @org.springframework.data.web.PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) org.springframework.data.domain.Pageable pageable) {
+        return ResponseEntity.ok(productService.getProducts(keyword, category, status, pageable));
     }
 
     @GetMapping("/{id}")

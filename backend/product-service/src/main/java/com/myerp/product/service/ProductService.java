@@ -6,9 +6,6 @@ import com.myerp.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class ProductService {
 
@@ -45,10 +42,21 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductDto> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public org.springframework.data.domain.Page<ProductDto> getProducts(String keyword, String category, String status,
+            org.springframework.data.domain.Pageable pageable) {
+
+        // "모든 카테고리" 또는 "모든 상태"가 넘어왔을 경우 null로 처리하여 필터 우회
+        String searchCategory = (category != null && !category.trim().isEmpty() && !category.contains("모든"))
+                ? category.trim()
+                : null;
+        String searchStatus = (status != null && !status.trim().isEmpty() && !status.contains("모든")) ? status.trim()
+                : null;
+        String searchKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+
+        org.springframework.data.domain.Page<Product> productPage = productRepository.searchProducts(
+                searchKeyword, searchCategory, searchStatus, pageable);
+
+        return productPage.map(this::convertToDto);
     }
 
     @Transactional(readOnly = true)

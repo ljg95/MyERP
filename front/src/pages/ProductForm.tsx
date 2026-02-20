@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Save, ArrowLeft } from 'lucide-react';
 import './Products.css';
@@ -8,31 +8,96 @@ const ProductForm = () => {
     const { id } = useParams();
     const isEditMode = !!id;
 
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const [formData, setFormData] = useState<{
         name: string;
+        sku: string;
         category: string;
         price: number | string;
         stock: number | string;
         description: string;
         status: string;
     }>({
-        name: isEditMode ? 'Premium Widget' : '',
-        category: isEditMode ? 'Widgets' : '',
-        price: isEditMode ? 120.00 : '',
-        stock: isEditMode ? 45 : '',
-        description: isEditMode ? 'A high quality widget.' : '',
-        status: isEditMode ? 'In Stock' : 'In Stock'
+        name: '',
+        sku: '',
+        category: '',
+        price: '',
+        stock: '',
+        description: '',
+        status: 'In Stock'
     });
+
+    useEffect(() => {
+        if (isEditMode) {
+            const fetchProduct = async () => {
+                try {
+                    const response = await fetch(`http://localhost:8080/products/${id}`);
+                    if (!response.ok) {
+                        throw new Error('상품 정보를 불러오는데 실패했습니다.');
+                    }
+                    const data = await response.json();
+                    setFormData({
+                        name: data.name,
+                        sku: data.sku,
+                        category: data.category || '',
+                        price: data.price,
+                        stock: data.stockQuantity,
+                        description: data.description || '',
+                        status: data.status || 'In Stock'
+                    });
+                } catch (err: any) {
+                    setError(err.message);
+                }
+            };
+            fetchProduct();
+        }
+    }, [isEditMode, id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Saving product:', formData);
-        navigate('/products');
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            // SKU 자동 생성 (임시)
+            const generatedSku = formData.sku || `PROD-${Math.floor(Math.random() * 10000)}`;
+
+            const payload = {
+                name: formData.name,
+                sku: generatedSku,
+                category: formData.category,
+                price: Number(formData.price),
+                stockQuantity: Number(formData.stock),
+                status: formData.status
+            };
+
+            const response = await fetch('http://localhost:8080/products', {
+                method: isEditMode ? 'PUT' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || '상품 저장에 실패했습니다.');
+            }
+
+            // 성공 시 상품 목록으로 이동
+            navigate('/products');
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -50,6 +115,11 @@ const ProductForm = () => {
             </div>
 
             <div className="content-card form-card">
+                {error && (
+                    <div style={{ backgroundColor: '#fee2e2', color: '#dc2626', padding: '1rem', borderRadius: '4px', marginBottom: '1rem' }}>
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit}>
                     <div className="form-section">
                         <h3 className="section-title">기본 정보</h3>
@@ -125,11 +195,11 @@ const ProductForm = () => {
                     </div>
 
                     <div className="form-actions">
-                        <button type="button" className="cancel-btn" onClick={() => navigate('/products')}>
+                        <button type="button" className="cancel-btn" onClick={() => navigate('/products')} disabled={isSubmitting}>
                             취소
                         </button>
-                        <button type="submit" className="primary-btn">
-                            <Save size={18} /> 상품 저장
+                        <button type="submit" className="primary-btn" disabled={isSubmitting}>
+                            <Save size={18} /> {isSubmitting ? '저장 중...' : '상품 저장'}
                         </button>
                     </div>
                 </form>

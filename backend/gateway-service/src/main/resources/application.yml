@@ -28,6 +28,18 @@ spring:
           predicates:
             - Path=/inventory/** # '/inventory/'로 시작하는 요청 라우팅
 
+      globalcors: # 프론트엔드 연동을 위한 전역 CORS 설정
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173" # 허용할 프론트엔드 도메인
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+
 eureka:
   client:
     serviceUrl:
