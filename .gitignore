@@ -1,0 +1,30 @@
+# IDE Configurations
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node.js
+node_modules/
+dist/
+build/
+.npm/
+
+# Java / Gradle
+.gradle/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local

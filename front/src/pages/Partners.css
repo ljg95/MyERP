@@ -1,0 +1,130 @@
+.partners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.partner-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.partner-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.partner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.partner-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.partner-type {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.partner-type.supplier {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.partner-type.customer {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.partner-type.logistics {
+    background-color: #fff7ed;
+    color: #9a3412;
+}
+
+.more-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.more-btn:hover {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+.partner-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.detail-icon {
+    color: #9ca3af;
+}
+
+.detail-label {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.detail-link {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+.detail-link:hover {
+    text-decoration: underline;
+}
+
+.partner-footer {
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot.active {
+    background-color: #10b981;
+}
+
+.status-dot.inactive {
+    background-color: #ef4444;
+}
+
+.status-text {
+    color: #6b7280;
+    font-weight: 500;
+}

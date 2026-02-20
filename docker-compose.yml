@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  product-db:
+    image: postgres:15-alpine
+    container_name: product-db
+    environment:
+      POSTGRES_USER: myerp
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: product_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - product_db_data:/var/lib/postgresql/data
+
+  partner-db:
+    image: postgres:15-alpine
+    container_name: partner-db
+    environment:
+      POSTGRES_USER: myerp
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: partner_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - partner_db_data:/var/lib/postgresql/data
+
+volumes:
+  product_db_data:
+  partner_db_data:

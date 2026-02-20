@@ -1,0 +1,79 @@
+/* Existing styles... */
+
+.movement-type {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.movement-type.inbound {
+    color: #059669;
+}
+
+.movement-type.outbound {
+    color: #d97706;
+}
+
+.movement-type.adjustment {
+    color: #6b7280;
+}
+
+.text-success {
+    color: #059669;
+    font-weight: 600;
+}
+
+/* Reusing previous styles */
+.inventory-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.stat-badge.success {
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.stat-badge.warning {
+    background-color: #fffbeb;
+    color: #b45309;
+}
+
+.stat-badge.error {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+.stock-level {
+    display: flex;
+    flex-direction: column;
+}
+
+.text-danger {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+.text-gray {
+    color: #6b7280;
+}
