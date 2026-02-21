@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Mail, Download, Package } from 'lucide-react';
 import './Orders.css';
@@ -6,32 +7,49 @@ const OrderDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // Mock Data - In a real app, fetch based on ID
-    const order = {
-        id: id || 'ORD-2023-001',
-        customer: 'Acme Corp',
-        date: '2023-10-25',
-        status: 'Completed',
-        total: 1250.00,
-        items: [
-            { id: 1, product: 'Premium Widget', quantity: 5, price: 120.00, total: 600.00 },
-            { id: 2, product: 'Basic Part', quantity: 50, price: 12.00, total: 600.00 },
-            { id: 3, product: 'Installation Service', quantity: 1, price: 50.00, total: 50.00 },
-        ],
-        shippingAddress: '123 Industry Way, Tech City, TC 90210',
-        billingAddress: '123 Industry Way, Tech City, TC 90210',
-        paymentMethod: 'Credit Card (**** 1234)'
-    };
+    const [order, setOrder] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchOrder = async () => {
+            try {
+                const res = await fetch(`http://localhost:8080/orders/${id}`);
+                if (!res.ok) throw new Error('주문 정보를 불러오지 못했습니다.');
+                const data = await res.json();
+                setOrder(data);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (id) fetchOrder();
+    }, [id]);
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'Completed': return 'status-badge-green';
-            case 'Processing': return 'status-badge-blue';
-            case 'Pending': return 'status-badge-yellow';
-            case 'Cancelled': return 'status-badge-red';
+            case 'DELIVERED': return 'status-badge-green';
+            case 'SHIPPED': return 'status-badge-blue';
+            case 'PROCESSING': return 'status-badge-blue';
+            case 'PENDING': return 'status-badge-yellow';
+            case 'CANCELLED': return 'status-badge-red';
             default: return 'status-badge-gray';
         }
     };
+
+    if (loading) {
+        return <div className="page-container"><p>로딩 중...</p></div>;
+    }
+
+    if (error || !order) {
+        return (
+            <div className="page-container">
+                <div className="error-banner" style={{ color: 'red' }}>{error || '주문을 찾을 수 없습니다.'}</div>
+                <button onClick={() => navigate('/orders')} className="secondary-btn mt-3">돌아가기</button>
+            </div>
+        );
+    }
 
     return (
         <div className="page-container">
@@ -42,7 +60,7 @@ const OrderDetail = () => {
                     </button>
                     <div>
                         <h1>주문 상세 정보</h1>
-                        <p>주문번호 #{order.id}</p>
+                        <p>주문번호 {order.orderNumber}</p>
                     </div>
                 </div>
                 <div className="button-group">
@@ -70,16 +88,12 @@ const OrderDetail = () => {
                         </div>
                         <div className="order-dates-grid">
                             <div className="date-item">
-                                <span className="label">주문일</span>
-                                <span className="value">{order.date}</span>
+                                <span className="label">접수일</span>
+                                <span className="value">{new Date(order.createdAt).toLocaleString()}</span>
                             </div>
                             <div className="date-item">
-                                <span className="label">결제일</span>
-                                <span className="value">{order.date}</span>
-                            </div>
-                            <div className="date-item">
-                                <span className="label">배송일</span>
-                                <span className="value">{order.status === 'Completed' ? '2023-10-27' : '-'}</span>
+                                <span className="label">마지막 업데이트</span>
+                                <span className="value">{new Date(order.updatedAt).toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
@@ -92,40 +106,40 @@ const OrderDetail = () => {
                                 <thead>
                                     <tr>
                                         <th>상품명</th>
-                                        <th className="text-right">단가</th>
+                                        <th className="text-right">단가 (₩)</th>
                                         <th className="text-right">수량</th>
-                                        <th className="text-right">합계</th>
+                                        <th className="text-right">합계 (₩)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {order.items.map((item) => (
+                                    {order.items && order.items.map((item: any) => (
                                         <tr key={item.id}>
                                             <td>
                                                 <div className="product-cell">
                                                     <div className="product-icon">
                                                         <Package size={16} />
                                                     </div>
-                                                    <span>{item.product}</span>
+                                                    <span>{item.productName || `상품 ID: ${item.productId}`}</span>
                                                 </div>
                                             </td>
-                                            <td className="text-right">${item.price.toFixed(2)}</td>
+                                            <td className="text-right">{Number(item.unitPrice).toLocaleString()}</td>
                                             <td className="text-right">{item.quantity}</td>
-                                            <td className="text-right fw-bold">${item.total.toFixed(2)}</td>
+                                            <td className="text-right fw-bold">{Number(item.subTotal).toLocaleString()}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colSpan={3} className="text-right label-cell">소계</td>
-                                        <td className="text-right">${order.total.toFixed(2)}</td>
+                                        <td className="text-right">₩ {Number(order.totalAmount).toLocaleString()}</td>
                                     </tr>
                                     <tr>
-                                        <td colSpan={3} className="text-right label-cell">세금 (10%)</td>
-                                        <td className="text-right">${(order.total * 0.1).toFixed(2)}</td>
+                                        <td colSpan={3} className="text-right label-cell">부가세 (추정 10%)</td>
+                                        <td className="text-right">₩ {(Number(order.totalAmount) * 0.1).toLocaleString()}</td>
                                     </tr>
                                     <tr className="grand-total-row">
                                         <td colSpan={3} className="text-right label-cell">총 합계</td>
-                                        <td className="text-right">${(order.total * 1.1).toFixed(2)}</td>
+                                        <td className="text-right">₩ {(Number(order.totalAmount) * 1.1).toLocaleString()}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -139,15 +153,7 @@ const OrderDetail = () => {
                         <h3>고객 정보</h3>
                         <div className="info-group">
                             <label>고객명</label>
-                            <p className="fw-bold">{order.customer}</p>
-                        </div>
-                        <div className="info-group">
-                            <label>담당자</label>
-                            <p>John Smith</p>
-                        </div>
-                        <div className="info-group">
-                            <label>이메일</label>
-                            <p>john@acme.com</p>
+                            <p className="fw-bold">{order.partnerName || `고객 ID: ${order.partnerId}`}</p>
                         </div>
                     </div>
 
@@ -156,15 +162,7 @@ const OrderDetail = () => {
                         <h3>배송 및 결제</h3>
                         <div className="info-group">
                             <label>배송지</label>
-                            <p>{order.shippingAddress}</p>
-                        </div>
-                        <div className="info-group">
-                            <label>청구지</label>
-                            <p>{order.billingAddress}</p>
-                        </div>
-                        <div className="info-group">
-                            <label>결제 수단</label>
-                            <p>{order.paymentMethod}</p>
+                            <p>{order.shippingAddress || '입력된 주소가 없습니다.'}</p>
                         </div>
                     </div>
                 </div>

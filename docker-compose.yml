@@ -112,7 +112,41 @@ services:
       discovery-service:
         condition: service_started
 
+  order-db:
+    image: postgres:15-alpine
+    container_name: order-db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: order_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U myuser -d order_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  order-service:
+    build: ./backend/order-service
+    container_name: order-service
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://order-db:5432/order_db
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=mypassword
+    depends_on:
+      order-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+
 volumes:
   product_db_data:
   partner_db_data:
   inventory_db_data:
+  order_db_data:
