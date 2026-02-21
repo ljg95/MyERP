@@ -18,7 +18,11 @@ spring:
         - id: partner-service
           uri: lb://partner-service
           predicates:
-            - Path=/partners/** # '/partners/'로 시작하는 요청 라우팅
+            - Path=/partners/**
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/inventory/** # '/partners/'로 시작하는 요청 라우팅
         - id: order-service
           uri: lb://order-service
           predicates:

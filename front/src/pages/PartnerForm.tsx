@@ -8,18 +8,14 @@ const PartnerForm = () => {
     const { id } = useParams();
     const isEditMode = !!id;
 
-    const [formData, setFormData] = useState<{
-        name: string;
-        type: string;
-        contact: string;
-        email: string;
-        phone: string;
-        address: string;
-        status: string;
-    }>({
+    const [isLoading, setIsLoading] = useState(isEditMode);
+    const [isSaving, setIsSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const [formData, setFormData] = useState({
         name: '',
         type: 'Supplier',
-        contact: '',
+        contactPerson: '',
         email: '',
         phone: '',
         address: '',
@@ -27,20 +23,29 @@ const PartnerForm = () => {
     });
 
     useEffect(() => {
-        if (isEditMode) {
-            // Mock data fetch for edit mode
-            if (id === '1') {
+        const fetchPartner = async () => {
+            if (!isEditMode) return;
+            try {
+                const response = await fetch(`http://localhost:8080/partners/${id}`);
+                if (!response.ok) throw new Error('거래처 정보를 불러오는데 실패했습니다.');
+                const data = await response.json();
                 setFormData({
-                    name: 'Acme Corp',
-                    type: 'Supplier',
-                    contact: 'John Smith',
-                    email: 'john@acme.com',
-                    phone: '+1 (555) 123-4567',
-                    address: '123 Industry Way, Tech City',
-                    status: 'Active'
+                    name: data.name || '',
+                    type: data.type || 'Supplier',
+                    contactPerson: data.contactPerson || '',
+                    email: data.email || '',
+                    phone: data.phone || '',
+                    address: data.address || '',
+                    status: data.status || 'Active'
                 });
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
             }
-        }
+        };
+
+        fetchPartner();
     }, [isEditMode, id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -48,11 +53,37 @@ const PartnerForm = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Saving partner:', formData);
-        navigate('/partners');
+        setIsSaving(true);
+        setError(null);
+
+        try {
+            const method = isEditMode ? 'PUT' : 'POST';
+            const url = isEditMode
+                ? `http://localhost:8080/partners/${id}`
+                : `http://localhost:8080/partners`;
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                throw new Error('거래처 저장에 실패했습니다.');
+            }
+
+            navigate('/partners');
+        } catch (err: any) {
+            setError(err.message);
+            setIsSaving(false);
+        }
     };
+
+    if (isLoading) return <div className="page-container"><p>로딩 중...</p></div>;
 
     return (
         <div className="page-container">
@@ -67,6 +98,8 @@ const PartnerForm = () => {
                     </div>
                 </div>
             </div>
+
+            {error && <div className="error-text" style={{ padding: '1rem', backgroundColor: '#fee2e2', borderRadius: '4px', marginBottom: '1rem' }}>{error}</div>}
 
             <div className="content-card form-card">
                 <form onSubmit={handleSubmit}>
@@ -111,8 +144,8 @@ const PartnerForm = () => {
                                 <label>담당자명</label>
                                 <input
                                     type="text"
-                                    name="contact"
-                                    value={formData.contact}
+                                    name="contactPerson"
+                                    value={formData.contactPerson}
                                     onChange={handleChange}
                                     required
                                     placeholder="예: 홍길동"
@@ -158,11 +191,11 @@ const PartnerForm = () => {
                     </div>
 
                     <div className="form-actions">
-                        <button type="button" className="cancel-btn" onClick={() => navigate('/partners')}>
+                        <button type="button" className="cancel-btn" onClick={() => navigate('/partners')} disabled={isSaving}>
                             취소
                         </button>
-                        <button type="submit" className="primary-btn">
-                            <Save size={18} /> 거래처 저장
+                        <button type="submit" className="primary-btn" disabled={isSaving}>
+                            <Save size={18} /> {isSaving ? '저장 중...' : '거래처 저장'}
                         </button>
                     </div>
                 </form>

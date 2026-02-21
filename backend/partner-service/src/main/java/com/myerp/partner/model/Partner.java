@@ -1,14 +1,13 @@
-package com.myerp.product.model;
+package com.myerp.partner.model;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "products")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE products SET deleted = true WHERE id = ?")
+@Table(name = "partners")
+@org.hibernate.annotations.SQLDelete(sql = "UPDATE partners SET deleted = true WHERE id = ?")
 @org.hibernate.annotations.SQLRestriction("deleted = false")
-public class Product {
+public class Partner {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,16 +16,13 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    private String sku; // 재고 관리 코드
-
-    private String category;
-
     @Column(nullable = false)
-    private BigDecimal price;
+    private String type; // Supplier, Customer, Logistics
 
-    private Integer stockQuantity = 0; // 초기 재고
-
+    private String contactPerson;
+    private String email;
+    private String phone;
+    private String address;
     private String status; // Active, Inactive
 
     private LocalDateTime createdAt;
@@ -47,6 +43,7 @@ public class Product {
     }
 
     // Getters and Setters
+
     public Long getId() {
         return id;
     }
@@ -63,36 +60,44 @@ public class Product {
         this.name = name;
     }
 
-    public String getSku() {
-        return sku;
+    public String getType() {
+        return type;
     }
 
-    public void setSku(String sku) {
-        this.sku = sku;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getCategory() {
-        return category;
+    public String getContactPerson() {
+        return contactPerson;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public Integer getStockQuantity() {
-        return stockQuantity;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setStockQuantity(Integer stockQuantity) {
-        this.stockQuantity = stockQuantity;
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getStatus() {

@@ -69,6 +69,50 @@ services:
       discovery-service:
         condition: service_started
 
+  partner-service:
+    build: ./backend/partner-service
+    container_name: partner-service
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://partner-db:5432/partner_db
+    depends_on:
+      discovery-service:
+        condition: service_started
+
+  inventory-db:
+    image: postgres:15-alpine
+    container_name: inventory-db
+    environment:
+      POSTGRES_USER: myerp
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - inventory_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U myerp -d inventory_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  inventory-service:
+    build: ./backend/inventory-service
+    container_name: inventory-service
+    ports:
+      - "8083:8083"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db:5432/inventory_db
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+
 volumes:
   product_db_data:
   partner_db_data:
+  inventory_db_data:

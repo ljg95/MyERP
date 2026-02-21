@@ -1,0 +1,23 @@
+server:
+  port: 8083 # 재고 서비스 포트
+
+spring:
+  application:
+    name: inventory-service # Eureka에 등록될 이름
+  datasource:
+    url: jdbc:postgresql://inventory-db:5432/inventory_db
+    username: myerp
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # 개발용: 엔티티 변경 시 스키마 자동 업데이트
+    show-sql: true # SQL 로깅 활성화
+    properties:
+      hibernate:
+        format_sql: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
