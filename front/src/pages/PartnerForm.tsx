@@ -3,6 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Save, ArrowLeft } from 'lucide-react';
 import './Partners.css';
 
+/**
+ * PartnerForm
+ * 거래처(공급사, 고객사, 물류 등) 정보를 생성하거나 수정하는 컴포넌트입니다.
+ * Partner Service의 REST API(POST/PUT /partners)와 연동됩니다.
+ */
 const PartnerForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();

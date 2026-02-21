@@ -4,6 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import './Orders.css';
 
+/**
+ * OrderHistory
+ * 전체 주문 내역을 조회하고 페이징, 검색 기능을 제공하는 컴포넌트입니다.
+ * Order Service (GET /orders) 백엔드와 통신하며, 특정 주문 취소(PUT /orders/{id}/status) 기능도 지원합니다.
+ */
 const OrderHistory = () => {
     const navigate = useNavigate();
     const [cancelModalOpen, setCancelModalOpen] = useState(false);
@@ -128,7 +133,7 @@ const OrderHistory = () => {
                                 orders.map((order) => (
                                     <tr key={order.id}>
                                         <td className="fw-bold">{order.orderNumber}</td>
-                                        <td>{order.partnerId} {/* 백엔드에서 partnerName이 안 온다면 일단 ID표시 */}</td>
+                                        <td>{order.partnerName || `고객 ID: ${order.partnerId}`}</td>
                                         <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                                         <td>
                                             <span className={`status-badge ${getStatusColor(order.status)}`}>

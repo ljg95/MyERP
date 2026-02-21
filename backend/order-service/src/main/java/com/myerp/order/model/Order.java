@@ -4,6 +4,12 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Order 엔티티
+ * 주문의 기본 메타데이터(주문번호, 상태, 총 금액, 배송지 등)를 저장합니다.
+ * Partner Service의 고객사 ID를 외래키(partnerId)로 유지하며,
+ * 세부 주문 품목은 OrderItem 엔티티를 통해 1:N 관계로 관리해야 하나, 현재는 간소화된 구조입니다.
+ */
 @Entity
 @Table(name = "orders")
 public class Order {

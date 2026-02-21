@@ -3,6 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Save, ArrowLeft } from 'lucide-react';
 import './Products.css';
 
+/**
+ * ProductForm
+ * 상품을 새로 등록하거나 기존 상품 정보를 수정하는 입력 폼 컴포넌트입니다.
+ * Product Service (백엔드)의 POST/PUT /products API와 통신합니다.
+ */
 const ProductForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();

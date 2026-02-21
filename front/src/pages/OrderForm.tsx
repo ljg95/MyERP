@@ -10,6 +10,13 @@ interface OrderItem {
     price: number;
 }
 
+/**
+ * OrderForm
+ * 새로운 주문을 생성하기 위한 폼 컴포넌트입니다.
+ * 1. Partner API (/partners?type=Customer)에서 고객사 목록을 가져옵니다.
+ * 2. Product API (/products)에서 전체 상품 목록 및 단가를 가져옵니다.
+ * 3. 기입된 주문 데이터는 Order Service API (POST /orders)로 전송되어 주문 생성 및 재고 자동 차감 과정을 거치게 됩니다.
+ */
 const OrderForm = () => {
     const navigate = useNavigate();
 

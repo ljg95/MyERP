@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * OrderController
+ * 주문 관리 관련 REST API 엔드포인트를 노출하는 컨트롤러입니다.
+ * 외부(Frontend)에서 Gateway를 통해 들어오는 `/orders` 경로의 요청을 처리합니다.
+ */
 @RestController
 @RequestMapping("/orders")
 public class OrderController {

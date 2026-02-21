@@ -3,6 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Mail, Download, Package } from 'lucide-react';
 import './Orders.css';
 
+/**
+ * OrderDetail
+ * 개별 주문의 상세 정보를 표시하는 페이지 컴포넌트입니다.
+ * Order Service 단건 조회 API (GET /orders/{id})를 호출하여 
+ * 주문자 정보, 배송지 정보, 품목 세부 정보(단가, 수량, 소계)를 출력합니다.
+ */
 const OrderDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();

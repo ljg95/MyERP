@@ -13,6 +13,12 @@ interface StockMovement {
     createdAt: string;
 }
 
+/**
+ * InventoryHistory
+ * 재고의 증감(입고, 출고, 수동 조정) 내역을 조회하는 컴포넌트입니다.
+ * Inventory Service (GET /inventory/history) 데이터를 페이징 처리하여 보여줍니다.
+ * 단일 상품의 이력만 조회할 수 있도록 검색 기능(productId 파라미터)을 제공합니다.
+ */
 const InventoryHistory = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);

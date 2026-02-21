@@ -3,6 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Save, ArrowLeft } from 'lucide-react';
 import './Inventory.css';
 
+/**
+ * InventoryAdjustment
+ * 특정 상품의 재고를 수동으로 입고/출고/보정하는 기능을 제공하는 폼 컴포넌트입니다.
+ * Inventory Service의 단건 조회 API(GET /inventory/{id})와 
+ * 재고 조정 API(POST /inventory/adjust)와 통신합니다.
+ */
 const InventoryAdjustment = () => {
     const navigate = useNavigate();
     const { id } = useParams(); // productId

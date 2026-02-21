@@ -18,6 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * InventoryService
+ * 재고 관리 비즈니스 로직을 담당하는 서비스 클래스입니다.
+ * 재고의 증감(입/출고), 현재 재고 현황 조회, 재고 이력 저장 기능을 제공합니다.
+ * ProductClient를 통해 Product 서비스에서 상품의 이름 등 메타데이터를 가져옵니다.
+ */
 @Service
 public class InventoryService {
 
@@ -60,6 +66,11 @@ public class InventoryService {
         return new PageImpl<>(dtoList, pageable, inventories.getTotalElements());
     }
 
+    /**
+     * 외부 요청(주문 생성 등) 또는 수동 조정에 의해 재고를 변경하고 이력을 기록합니다.
+     *
+     * @param request 재고 조정 요청 정보 (상품 ID, 변경 수량, 사유 등)
+     */
     @Transactional
     public void adjustStock(StockAdjustmentRequest request) {
         Long productId = request.getProductId();
@@ -127,6 +138,13 @@ public class InventoryService {
         return dto;
     }
 
+    /**
+     * 상품별 재고 증감 이력(History)을 페이징하여 조회합니다.
+     *
+     * @param productId 특정 상품의 이력만 볼 경우의 상품 ID (null이면 전체 조회)
+     * @param pageable  페이징 정보
+     * @return 페이징된 재고 이력 엔티티 목록
+     */
     public Page<InventoryHistory> getInventoryHistories(Long productId, Pageable pageable) {
         if (productId != null) {
             return inventoryHistoryRepository.findByProductId(productId, pageable);

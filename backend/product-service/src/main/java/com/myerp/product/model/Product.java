@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
  * Soft Delete (논리적 삭제) 기능이 적용되어 있어, 삭제 시 실제 데이터가 지워지지 않고
  * 'deleted' 컬럼이 true로 업데이트됩니다. (@SQLDelete, @SQLRestriction 활용)
  */
+/**
+ * Product 엔티티
+ * 제품 마스터 데이터를 나타내며, 상품 식별(SKU), 카테고리, 단가를 저장합니다.
+ * 시스템 내 다른 서비스(Order, Inventory)에서 FeignClient를 통해 주로 참조되는 기본 정보입니다.
+ */
 @Entity
 @Table(name = "products")
 @org.hibernate.annotations.SQLDelete(sql = "UPDATE products SET deleted = true WHERE id = ?")

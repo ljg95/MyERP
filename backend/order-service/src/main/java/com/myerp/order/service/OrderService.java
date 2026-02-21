@@ -19,6 +19,11 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * OrderService
+ * 주문 생성, 조회 및 상태 변경을 담당하는 비즈니스 로직 클래스입니다.
+ * Product, Partner, Inventory 서비스와 OpenFeign을 통해 통신하여 주문 가능 여부 및 재고 차감을 처리합니다.
+ */
 @Service
 public class OrderService {
 
@@ -37,6 +42,16 @@ public class OrderService {
         this.inventoryClient = inventoryClient;
     }
 
+    /**
+     * 새로운 주문을 생성합니다.
+     * 1. PartnerClient를 통해 고객 유효성 검증
+     * 2. ProductClient를 통해 상품 단가 조회 및 총액 계산
+     * 3. InventoryClient를 통해 재고 차감 (OUTBOUND)
+     * 4. 데이터베이스에 Order 및 OrderItem 저장
+     *
+     * @param request 주문 요청 데이터 (고객 ID, 배송지, 상품 목록 등)
+     * @return 생성된 주문 정보 DTO
+     */
     @Transactional
     public OrderDto createOrder(OrderRequest request) {
         // Validate Partner
@@ -104,6 +119,14 @@ public class OrderService {
         return convertToDto(savedOrder, items, (String) partnerData.get("name"));
     }
 
+    /**
+     * 조건에 맞는 주문 목록을 페이징하여 조회합니다.
+     * 키워드가 제공된 경우 주문 번호를 기준으로 검색합니다.
+     *
+     * @param orderNumberKeyword 검색할 주문 번호 키워드
+     * @param pageable           페이징 및 정렬 정보
+     * @return 페이징된 주문 DTO 목록
+     */
     @Transactional(readOnly = true)
     public Page<OrderDto> getOrders(String orderNumberKeyword, Pageable pageable) {
         Page<Order> orders;
@@ -115,6 +138,13 @@ public class OrderService {
         return orders.map(this::convertToDtoLight);
     }
 
+    /**
+     * 특정 주문의 상세 정보를 조회합니다.
+     * FeignClient를 사용해 파트너(고객) 이름과 각 품목의 상품명을 함께 조회하여 응답에 포함시킵니다.
+     *
+     * @param id 주문 ID
+     * @return 조회된 주문 상세 정보 DTO
+     */
     @Transactional(readOnly = true)
     public OrderDto getOrderById(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다. ID: " + id));
@@ -132,6 +162,13 @@ public class OrderService {
         return convertToDto(order, items, partnerName);
     }
 
+    /**
+     * 주문의 상태(예: 배송 중, 완료, 취소 등)를 변경합니다.
+     *
+     * @param id     주문 ID
+     * @param status 변경할 상태 값
+     * @return 상태가 변경된 주문 정보 DTO
+     */
     @Transactional
     public OrderDto updateOrderStatus(Long id, String status) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다. ID: " + id));

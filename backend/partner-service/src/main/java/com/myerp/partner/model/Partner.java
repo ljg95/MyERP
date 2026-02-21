@@ -5,16 +5,14 @@ import java.time.LocalDateTime;
 
 /**
  * Partner
- * 공급사, 고객사, 물류 파트너 등 거래처 정보를 저장하는 JPA Entity 클래스입니다.
- * DB의 'partners' 테이블과 매핑됩니다.
- * 
- * Soft Delete (논리적 삭제) 기능이 적용되어 있어, 삭제 시 실제 데이터가 지워지지 않고
- * 'deleted' 컬럼이 true로 업데이트됩니다. (@SQLDelete, @SQLRestriction 활용)
+ * Partner 엔티티
+ * 거래처(공급사, 고객사, 물류 등)의 핵심 정보를 저장하는 DB 테이블과 매핑됩니다.
+ * Soft Delete 설정을 통해 삭제 시 실제 DB 레코드를 지우지 않고 deleted_at 필드만 업데이트합니다.
  */
 @Entity
 @Table(name = "partners")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE partners SET deleted = true WHERE id = ?")
-@org.hibernate.annotations.SQLRestriction("deleted = false") // 일반 조회 시 삭제된 데이터는 자동 필터링됨
+@SQLDelete(sql = "UPDATE partners SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Partner {
 
     @Id

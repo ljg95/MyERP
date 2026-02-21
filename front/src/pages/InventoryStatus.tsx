@@ -13,6 +13,12 @@ interface InventoryItem {
     status: string; // NORMAL, LOW_STOCK, OUT_OF_STOCK
 }
 
+/**
+ * InventoryStatus
+ * 전체 상품의 재고 현황을 테이블 형태로 보여주는 컴포넌트입니다.
+ * Inventory Service (GET /inventory)와 통신하여 페이징된 재고 데이터를 가져옵니다.
+ * Feign Client로 가져온 Product 카테고리/이름 정보도 함께 출력합니다.
+ */
 const InventoryStatus = () => {
     const navigate = useNavigate();
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
