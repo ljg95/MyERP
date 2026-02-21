@@ -2,6 +2,11 @@ package com.myerp.partner.dto;
 
 import java.time.LocalDateTime;
 
+/**
+ * PartnerDto
+ * 거래처 서비스의 API 요청 및 응답에서 사용되는 데이터 전송 객체입니다.
+ * 내부 Entity 모델(Partner) 구조를 보호하고 REST API 규격에 맞는 형식으로 제공합니다.
+ */
 public class PartnerDto {
     private Long id;
     private String name;

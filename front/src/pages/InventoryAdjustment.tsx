@@ -20,15 +20,19 @@ const InventoryAdjustment = () => {
         reference: ''
     });
 
+    // 1. 초기 폼 세팅: productId를 통해 백엔드에서 단건 재고 정보를 가져옵니다.
     useEffect(() => {
         const fetchInventory = async () => {
             if (!id) return;
             try {
+                // 특정 상품의 재고 조회를 위해 단건 엔드포인트 호출
                 const response = await fetch(`http://localhost:8080/inventory/${id}`);
                 if (!response.ok) {
                     throw new Error('재고 정보를 불러오는데 실패했습니다.');
                 }
                 const data = await response.json();
+
+                // 받아온 데이터로 폼 기본값을 세팅합니다 (상품명, 현재고)
                 setFormData(prev => ({
                     ...prev,
                     productName: data.productName,
@@ -48,6 +52,7 @@ const InventoryAdjustment = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    // 2. 폼 제출: 사용자가 선택한 [조정 유형]과 [수량]을 바탕으로 최종 재고 증감을 결정하여 백엔드에 전송합니다.
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
@@ -57,14 +62,16 @@ const InventoryAdjustment = () => {
             const qty = Number(formData.quantity);
             let quantityChanged = 0;
 
+            // 조정 유형에 따른 실제 변동 수량(quantityChanged) 계산 로직
             if (formData.adjustmentType === 'Inbound') {
-                quantityChanged = qty;
+                quantityChanged = qty; // 입고: 플러스
             } else if (formData.adjustmentType === 'Outbound') {
-                quantityChanged = -qty;
+                quantityChanged = -qty; // 출고: 마이너스
             } else {
-                quantityChanged = qty; // For correction, assuming user enters the offset (could be negative)
+                quantityChanged = qty; // 보정: 사용자가 입력한 값 그대로 (음수/양수 모두 가능)
             }
 
+            // 요청 Payload 생성 (DTO 구조 매핑)
             const payload = {
                 productId: Number(id),
                 quantityChanged,
@@ -72,6 +79,7 @@ const InventoryAdjustment = () => {
                 referenceId: formData.reference
             };
 
+            // 재고 조정 /inventory/adjust 로 POST 전송
             const response = await fetch('http://localhost:8080/inventory/adjust', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -82,6 +90,7 @@ const InventoryAdjustment = () => {
                 throw new Error('재고 조정에 실패했습니다.');
             }
 
+            // 제출 성공 시 목록 페이지로 라우팅
             navigate('/inventory');
         } catch (err: any) {
             setError(err.message);
@@ -89,6 +98,7 @@ const InventoryAdjustment = () => {
         }
     };
 
+    // 3. UI 헬퍼: 현재 입력된 값을 기준으로 '반영 후 예상 재고'를 화면에 미리 보여주기 위한 계산 함수
     const calculateNewStock = () => {
         const qty = Number(formData.quantity) || 0;
         if (formData.adjustmentType === 'Inbound') return formData.currentStock + qty;

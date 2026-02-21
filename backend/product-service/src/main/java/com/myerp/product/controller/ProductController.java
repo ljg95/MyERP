@@ -6,6 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * ProductController
+ * 외부/내부 클라이언트의 상품 관련 REST API 요청을 처리하는 컨트롤러입니다.
+ * Gateway를 통해 "/products/**" 경로로 매핑됩니다.
+ */
 @RestController
 @RequestMapping("/products")
 public class ProductController {

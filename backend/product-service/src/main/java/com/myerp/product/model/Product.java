@@ -4,10 +4,18 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Product
+ * ERP 시스템의 상품(품목) 정보를 저장하는 JPA Entity 클래스입니다.
+ * DB의 'products' 테이블과 매핑되며, 재고 관리 등 다른 서비스의 기준 정보가 됩니다.
+ * 
+ * Soft Delete (논리적 삭제) 기능이 적용되어 있어, 삭제 시 실제 데이터가 지워지지 않고
+ * 'deleted' 컬럼이 true로 업데이트됩니다. (@SQLDelete, @SQLRestriction 활용)
+ */
 @Entity
 @Table(name = "products")
 @org.hibernate.annotations.SQLDelete(sql = "UPDATE products SET deleted = true WHERE id = ?")
-@org.hibernate.annotations.SQLRestriction("deleted = false")
+@org.hibernate.annotations.SQLRestriction("deleted = false") // 일반 조회 시 삭제된 데이터 필터링
 public class Product {
 
     @Id

@@ -10,6 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * PartnerController
+ * 거래처 관련 HTTP REST API 엔드포인트를 노출하는 컨트롤러입니다.
+ * 외부 클라이언트(프론트엔드 등)는 Gateway를 거쳐 "/partners/**" 경로로 이 엔드포인트에 접근합니다.
+ */
 @RestController
 @RequestMapping("/partners")
 public class PartnerController {

@@ -28,7 +28,11 @@ const InventoryHistory = () => {
     const fetchHistory = async () => {
         setLoading(true);
         try {
+            // 이력 정보 조회 API 호출. 
+            // Query Parameter를 통해 페이지네이션과 상품 ID 검색(필터링)을 동시에 지원합니다.
             let url = `http://localhost:8080/inventory/history?page=${currentPage}&size=15`;
+
+            // 검색어가 있고 숫자인 경우에만 productId 파라미터를 추가하여 필터링
             if (searchTerm.trim() && !isNaN(Number(searchTerm))) {
                 url += `&productId=${searchTerm.trim()}`;
             }
@@ -37,7 +41,7 @@ const InventoryHistory = () => {
             if (!response.ok) {
                 throw new Error('이력 데이터를 불러오는데 실패했습니다.');
             }
-            const data = await response.json();
+            const data = await response.json(); // 응답받은 Spring Page 객체
             setHistory(data.content);
             setTotalPages(data.totalPages);
         } catch (err: any) {

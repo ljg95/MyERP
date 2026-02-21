@@ -6,6 +6,11 @@ import com.myerp.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * ProductService
+ * 상품 핵심 관리 비즈니스 로직을 담당하는 단위입니다.
+ * Entity/DTO 변환, 다중 조건 기반 상품 쿼리(Repository 연동), CRUD 및 재고 기초값 관리 등을 포함합니다.
+ */
 @Service
 public class ProductService {
 

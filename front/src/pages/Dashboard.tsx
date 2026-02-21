@@ -9,7 +9,7 @@ const Dashboard = () => {
                 <p>사업 성과 개요</p>
             </div>
 
-            {/* Summary Cards */}
+            {/* Summary Cards: 핵심 비즈니스 지표(KPI)를 상단에 요약하여 보여줍니다. */}
             <div className="summary-grid">
                 <div className="summary-card">
                     <div className="card-icon blue">

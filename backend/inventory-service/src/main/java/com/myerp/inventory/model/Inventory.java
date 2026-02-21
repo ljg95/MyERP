@@ -2,6 +2,12 @@ package com.myerp.inventory.model;
 
 import jakarta.persistence.*;
 
+/**
+ * Inventory
+ * 특정 상품의 "현재 재고 수량 원장"을 관리하는 JPA Entity 클래스입니다.
+ * DB의 'inventories' 테이블과 매핑되며, 각 상품(productId)당 하나의 레코드만 존재하여
+ * 최종 재고 상태(quantity)를 지속해서 추적 및 갱신합니다.
+ */
 @Entity
 @Table(name = "inventories")
 public class Inventory {

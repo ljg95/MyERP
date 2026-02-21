@@ -24,13 +24,15 @@ const InventoryStatus = () => {
     const fetchInventory = async () => {
         setLoading(true);
         try {
+            // 스프링 부트 백엔드의 /inventory API 호출 (Pagination 지원)
+            // Gateway(8080)를 거쳐 inventory-service로 라우팅됩니다.
             const response = await fetch(`http://localhost:8080/inventory?page=${currentPage}&size=10`);
             if (!response.ok) {
                 throw new Error('재고 데이터를 불러오는데 실패했습니다.');
             }
-            const data = await response.json();
-            setInventory(data.content);
-            setTotalPages(data.totalPages);
+            const data = await response.json(); // 응답받은 Spring Page 객체
+            setInventory(data.content);         // 실제 배열 데이터
+            setTotalPages(data.totalPages);     // 전체 페이지 수 갱신
         } catch (err: any) {
             setError(err.message);
         } finally {

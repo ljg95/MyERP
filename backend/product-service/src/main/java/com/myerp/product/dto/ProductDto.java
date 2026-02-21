@@ -3,6 +3,11 @@ package com.myerp.product.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * ProductDto
+ * 상품 서비스와 클라이언트(프론트엔드, API Gateway 등) 간의 데이터 전송 객체입니다.
+ * 내부 도메인 Entity(Product)를 캡슐화하고 필요한 데이터만 외부에 노출합니다.
+ */
 public class ProductDto {
 
     private Long id;

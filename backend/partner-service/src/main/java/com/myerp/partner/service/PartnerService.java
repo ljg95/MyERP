@@ -8,6 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * PartnerService
+ * 거래처 관리의 비즈니스 로직을 담당하는 클래스입니다.
+ * 거래처 등록, 수정, 삭제(논리적 삭제 적용됨) 및 다중 필터 검색 기능이 구현되어 있습니다.
+ */
 @Service
 public class PartnerService {
 
@@ -17,6 +22,10 @@ public class PartnerService {
         this.partnerRepository = partnerRepository;
     }
 
+    /**
+     * 거래처 목록을 조회합니다.
+     * 검색어(이름)와 타입(공급사, 고객사 등) 파라미터 유무에 따라 동적으로 조건을 조합하여 쿼리합니다.
+     */
     @Transactional(readOnly = true)
     public Page<PartnerDto> getPartners(String keyword, String type, Pageable pageable) {
         Page<Partner> partners;

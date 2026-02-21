@@ -13,6 +13,7 @@ const ProductList = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
 
+    // 상품 목록 데이터를 백엔드에서 가져옵니다. (페이징 및 다중 필터 검색 지원)
     const fetchProducts = async () => {
         setLoading(true);
         try {
@@ -23,13 +24,14 @@ const ProductList = () => {
             params.append('page', currentPage.toString());
             params.append('size', '10');
 
+            // API Gateway를 거쳐 Product-Service(8081)로 라우팅 처리됩니다.
             const response = await fetch(`http://localhost:8080/products?${params.toString()}`);
             if (!response.ok) {
                 throw new Error('데이터를 불러오는데 실패했습니다.');
             }
             const data = await response.json();
 
-            // Spring Boot DTO 구조를 기존 프론트엔드 구조에 맞게 매핑
+            // Spring Boot DTO 구조를 기존 프론트엔드 테이블 렌더링 구조에 맞게 매핑
             const mappedData = data.content.map((item: any) => ({
                 id: item.id,
                 name: item.name,

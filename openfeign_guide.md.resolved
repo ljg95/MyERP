@@ -1,0 +1,77 @@
+# Spring Cloud OpenFeign 가이드
+
+## 1. 개요
+마이크로서비스 아키텍처(MSA) 환경에서는 서비스들이 여러 웹 서버로 분리되어 구동됩니다. 예를 들어, **재고 서비스(Inventory Service)**가 상품명이나 카테고리를 알기 위해서는 **상품 서비스(Product Service)**에게 API 요청을 보내야 합니다.
+
+이러한 서비스 간의 HTTP 통신(API 호출)을 매우 직관적이고 쉽게 구현할 수 있도록 도와주는 라이브러리가 바로 **Spring Cloud OpenFeign**입니다.
+
+## 2. 기존 방식의 한계 (RestTemplate / WebClient)
+전통적으로 자바에서 외부 API를 호출할 때는 `RestTemplate`이나 `WebClient`를 많이 사용했습니다.
+하지만 이런 객체들은 다음과 같은 불편함이 있었습니다:
+*   URL, HTTP 메서드, 헤더, 파라미터 등을 직접 코드로 조합해야 함
+*   통신 대상 클라이언트마다 중복 코드가 대량 발생
+*   응답값을 원하는 객체로 변환하기 위해 추가 설정 필요
+*   MSA 환경의 Service Discovery (Eureka 등) 연동을 명시적으로 코딩해야 함
+
+## 3. Spring Cloud OpenFeign의 특징 및 장점
+
+OpenFeign은 **선언적(Declarative) REST 클라이언트**입니다. 즉, "어떻게(How)" 통신할지가 아니라 "무엇을(What)" 호출할지만 인터페이스로 선언하면, 내부적인 HTTP 통신 로직을 Spring이 자동으로 런타임에 만들어줍니다.
+
+### ✅ 주요 장점
+
+1.  **인터페이스 선언만으로 통신 가능**
+    복잡한 비즈니스 로직 작성 없이, `@FeignClient` 어노테이션과 `@GetMapping` 등 Spring MVC 어노테이션만 작성하면 통신 코드가 완성됩니다.
+2.  **Eureka(Service Discovery)와의 강력한 연동**
+    호출할 서비스의 하드코딩된 IP/포트를 직접 지정하지 않아도 됩니다. Eureka에 등록된 서비스 이름(예: `product-service`)만 지정하면, Feign Client가 Eureka를 통해 해당 서비스가 동작 중인 실제 IP로 알아서 찾아갑니다.
+3.  **기본 제공되는 로드 밸런싱**
+    만약 트래픽이 몰려 `product-service` 컨테이너를 3개로 늘렸다고 가정해 보겠습니다. Feign Client는 내장된 `Spring Cloud LoadBalancer`를 이용해, 재고 서버가 요청을 보낼 때 상품 서버 3곳으로 요청을 분산하여(Round Robin 등) 전송합니다.
+4.  **자동 페이로드 파싱**
+    JSON 응답 텍스트를 Java Data Transfer Object (DTO) 객체로 자동으로 파싱해주는 Jackson 연동 로직이 내장되어 있습니다.
+
+## 4. 우리 ERP 시스템 로직 파헤치기 (Inventory → Product 호출)
+
+현재 개발된 ERP 시스템에서 재고 관리는 `inventory_db`에 수량 데이터만 저장합니다. 대신 **상품에 대한 메타데이터**는 상품 서비스에 물어봅니다.
+
+**1. Feign 인터페이스 정의 ([ProductClient.java](file:///c:/MyERP/backend/inventory-service/src/main/java/com/myerp/inventory/client/ProductClient.java))**
+재고 서비스 내에 상품 서비스 API 명세서를 정의합니다.
+```java
+@FeignClient(name = "product-service") // Eureka 서버에 등록된 상품 서비스의 이름!
+public interface ProductClient {
+
+    @GetMapping("/products/{id}")
+    ProductDto getProductById(@PathVariable("id") Long id);
+}
+```
+
+**2. 비즈니스 로직에서 일반 함수처럼 사용 ([InventoryService.java](file:///c:/MyERP/backend/inventory-service/src/main/java/com/myerp/inventory/service/InventoryService.java))**
+[ProductClient](file:///c:/MyERP/backend/inventory-service/src/main/java/com/myerp/inventory/client/ProductClient.java#9-15)를 스프링 빈으로 주입받은 뒤 자바 메서드 부르듯이 편하게 호출합니다.
+```java
+@Service
+public class InventoryService {
+
+    @Autowired
+    private ProductClient productClient;
+
+    public InventoryResponseDto getInventoryByProductId(Long productId) {
+        // 1. 재고 DB에서 현재 수량 확인
+        Inventory inventory = inventoryRepository.findByProductId(productId).orElse(...);
+        
+        // 2. 외부 상품 서비스 API 호출 (Feign Client 동작 구역!)
+        try {
+            // 마치 내부 함수 부르듯이 편안하게 외부 서버 API 호출!
+            ProductDto product = productClient.getProductById(productId);
+            dto.setProductName(product.getName());
+            dto.setProductCategory(product.getCategory());
+        } catch (Exception e) {
+            // 상품 서비스가 일시적으로 다운되었거나 타임아웃 발생 시 대응
+            dto.setProductName("Product Not Found");
+        }
+        
+        return dto;
+    }
+}
+```
+
+## 5. MSA 관점에서의 OpenFeign의 가치
+*   **개발 생산성 극대화**: 마이크로서비스 개수가 수십 개, 수백 개로 늘어나더라도 각 서비스와의 연동 코드를 매우 빠르게 뽑아낼 수 있습니다.
+*   **유연성과 장애 복원력**: IP가 변경되어도 Eureka가 중간에서 해결해주고, 예기치 않은 오류 시 `Resilience4j` 같은 서킷 브레이커(Circuit Breaker)를 Feign Client에 붙여 장애가 전체 시스템으로 전파되는 것을 즉시 차단할 수 있습니다.

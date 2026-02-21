@@ -3,10 +3,18 @@ package com.myerp.partner.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Partner
+ * 공급사, 고객사, 물류 파트너 등 거래처 정보를 저장하는 JPA Entity 클래스입니다.
+ * DB의 'partners' 테이블과 매핑됩니다.
+ * 
+ * Soft Delete (논리적 삭제) 기능이 적용되어 있어, 삭제 시 실제 데이터가 지워지지 않고
+ * 'deleted' 컬럼이 true로 업데이트됩니다. (@SQLDelete, @SQLRestriction 활용)
+ */
 @Entity
 @Table(name = "partners")
 @org.hibernate.annotations.SQLDelete(sql = "UPDATE partners SET deleted = true WHERE id = ?")
-@org.hibernate.annotations.SQLRestriction("deleted = false")
+@org.hibernate.annotations.SQLRestriction("deleted = false") // 일반 조회 시 삭제된 데이터는 자동 필터링됨
 public class Partner {
 
     @Id

@@ -5,6 +5,12 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+/**
+ * InventoryHistory
+ * 재고 수량의 증감 내역(입고, 출고, 재고 보정 등)을 기록하는 로그 결속성 JPA Entity 클래스입니다.
+ * DB의 'inventory_histories' 테이블과 매핑되며, 재고 변동 내역의 감사(Audit) 및 이력 추적을 위해
+ * 한 번 기록된 데이터는 수정(Update)되지 않고 지속해서 쌓이는 형태(Append-Only)로 설계되었습니다.
+ */
 @Entity
 @Table(name = "inventory_histories")
 public class InventoryHistory {

@@ -21,22 +21,24 @@ const PartnerList = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedPartner, setSelectedPartner] = useState<any | null>(null);
 
+    // 거래처 목록 데이터를 백엔드 API에서 페이징 및 필터(검색어/유형)와 함께 가져옵니다.
     const fetchPartners = async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
             if (searchTerm.trim()) params.append('keyword', searchTerm.trim());
-            if (searchType !== 'All') params.append('type', searchType);
+            if (searchType !== 'All') params.append('type', searchType); // 'All' 이면 전체 조회
             params.append('page', currentPage.toString());
             params.append('size', '10');
 
+            // API Gateway를 통해 Partner-Service 로 전달됩니다.
             const response = await fetch(`http://localhost:8080/partners?${params.toString()}`);
             if (!response.ok) {
                 throw new Error('데이터를 불러오는데 실패했습니다.');
             }
             const data = await response.json();
             setPartners(data.content);
-            setTotalPages(data.totalPages);
+            setTotalPages(data.totalPages); // 전체 페이지 수 업데이트
         } catch (err: any) {
             setError(err.message);
         } finally {
